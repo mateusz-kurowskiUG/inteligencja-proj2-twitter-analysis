@@ -51,8 +51,9 @@ if __name__ == "__main__":
 
     new_df = pd.DataFrame()
     new_df["date"] = df["date"]
-    new_df["content_tokens"] = df["raw_content"].apply(preprocess_text)
-    new_df["processed_content"] = new_df["content_tokens"].apply(" ".join)
+    new_df["processed_content"] = (
+        df["raw_content"].apply(preprocess_text).apply(" ".join)
+    )
     # new_df["user_desc_preprocessed"] = (
     #     df["user_description"].apply(str).apply(preprocess_text)
     # )
