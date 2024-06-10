@@ -15,12 +15,16 @@ def main_cow():
     word_list = [word for line in all_rows_splitted for word in line]
     # Generate a word cloud image
     # stop_words = [str(a) for ]
-
+    max_words = 200
     wordcloud = WordCloud(
-        max_words=100, stopwords=[*STOPWORDS, "u", "n", "s", "n't", "co", "t", "amp"]
+        max_words=max_words,
+        stopwords=[*STOPWORDS, "u", "n", "s", "n't", "co", "t", "amp"],
+        width=2560,
+        height=1440,
     ).generate(" ".join(word_list))
-
-    plt.figure()
+    fig = plt.figure(figsize=(25.60, 14.40))
+    fig.suptitle(f"All tweets wordcloud ({max_words} words)", fontsize=50)
+    plt.tight_layout(pad=0)
     plt.imshow(wordcloud, interpolation="bilinear")
     plt.axis("off")
     plt.savefig("./data/war-day/cow-main.png")
@@ -76,17 +80,22 @@ def israel_cow():
 
     fig = plt.figure(figsize=(25.60, 18.62))
     fig.suptitle(
-        f"Word cloud - tweets including hash #israel ({max_words} words)", fontsize=50
+        f"Wordcloud - tweets including #israel tag ({max_words} words)", fontsize=50
     )
     image_colors = ImageColorGenerator(mask)
     plt.imshow(
         wordcloud.recolor(color_func=image_colors),
         interpolation="bilinear",
     )
+    plt.tight_layout(pad=0)
     plt.axis("off")
 
     # Save the word cloud image
     plt.savefig("./data/war-day/cow-israel.png")
+
+def palestine_cow():
+    # TODO
+    pass
 
 
 if __name__ == "__main__":
