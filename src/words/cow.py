@@ -56,6 +56,9 @@ def main_cow():
         "processed_content"
     ]
     all_rows = processed_tokens.tolist()
+    for line in all_rows:
+        if isinstance(line, float):
+            print(line)
     all_rows_splitted = [line.split(" ") for line in all_rows]
     word_list = [word for line in all_rows_splitted for word in line]
     # Generate a word cloud image
