@@ -53,7 +53,12 @@ def get_sentiment(text):
     if pd.isnull(text) or text.strip() == "":
         return np.nan
     scores = analyzer.polarity_scores(text)
-    return 1 if scores["pos"] > 0 else 0
+    # print(scores)
+    return (
+        scores["neg"],
+        scores["neu"],
+        scores["pos"],
+    )
 
 
 if __name__ == "__main__":
@@ -72,10 +77,12 @@ if __name__ == "__main__":
     new_df["hash_tags"] = df["hash_tags"]
 
     # Sentiment analysis
-    new_df["content_sentiment"] = new_df["processed_content"].apply(get_sentiment)
 
-    # Drop rows with NaN sentiment
-    new_df = new_df.dropna(subset=["content_sentiment"])
+    sentiments = new_df["processed_content"].apply(get_sentiment)
+    new_df["neg_sentiment"], new_df["neu_sentiment"], new_df["pos_sentiment"] = zip(
+        *sentiments
+    )
+    new_df = new_df.dropna(subset=["neg_sentiment", "neu_sentiment", "pos_sentiment"])
 
     # Save to CSV
     new_df.to_csv("./data/combined/preprocessed.csv", index=False)
