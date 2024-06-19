@@ -1824,6 +1824,17 @@ files = [
 ]
 
 [[package]]
+name = "stopwordsiso"
+version = "0.6.1"
+description = "Collection of stopwords for multiple languages. Using ISO 639-1 language code."
+optional = false
+python-versions = "*"
+files = [
+    {file = "stopwordsiso-0.6.1-py3-none-any.whl", hash = "sha256:c9bff4ed5fdddbfb56998c99d5b11460c2fea0134403e0c4104f63b7c665fffc"},
+    {file = "stopwordsiso-0.6.1.tar.gz", hash = "sha256:5be2b4f25afc296fca4f626710b98168949057f81a655e2dbdf670ddfce2af50"},
+]
+
+[[package]]
 name = "tensorboard"
 version = "2.16.2"
 description = "TensorBoard lets you watch Tensors Flow"
@@ -2433,4 +2444,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b7355b52e58d7e27e4494933bb3551d3e93562e9bfd5b84b09264b0f2fc977aa"
+content-hash = "5448059644e3d7166c67e2471aa7b8038e561cdf8a7aca0a7c4b91552133a2d1"

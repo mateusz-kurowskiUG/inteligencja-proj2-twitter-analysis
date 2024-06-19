@@ -19,6 +19,7 @@ tf-keras = "^2.16.0"
 pillow = "^10.3.0"
 wordcloud = "^1.9.3"
 pandas-stubs = "^2.2.2.240603"
+stopwordsiso = "^0.6.1"
 
 
 [build-system]

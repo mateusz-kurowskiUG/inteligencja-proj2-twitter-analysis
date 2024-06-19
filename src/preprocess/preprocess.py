@@ -1,67 +1,50 @@
-import nltk
-from nltk.corpus import stopwords
+import pandas as pd
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 from rich import print
-import pandas as pd
-import string
 from autocorrect import Speller
 import re
 import numpy as np
+from src.words.stopwords import ALL_STOPWORDS
 
+# Initialize necessary components
 analyzer = SentimentIntensityAnalyzer()
 speller = Speller(fast=True)
+lemmatizer = WordNetLemmatizer()
+
+# Custom stopwords list
+
+
+# Combine datasets
+def combine() -> pd.DataFrame:
+    after_war = pd.read_csv("./data/war-day/dataset.csv")
+    before_war = pd.read_csv("./data/before-war/dataset.csv")
+    combined_df = pd.concat([before_war, after_war]).drop("Unnamed: 0", axis=1)
+    combined_df = combined_df.reset_index(drop=True)
+    combined_df.to_csv("./data/combined/dataset.csv", index=False)
+    return combined_df
 
 
 # Preprocessing function
 def preprocess_text(text: str):
     if pd.isnull(text):  # Check for NaN values
         return ""
-
+    text = text.encode("ascii", errors="ignore").decode()
     # Remove URLs
-    text = re.sub(r"""https?:\/\/\S+|www\.\S+""", " ", text)
+    text = re.sub(r"https?:\/\/\S+|www\.\S+", " ", text)
 
     # Spelling correction
     text = speller(text.lower().strip())
-
     # Tokenize
     tokens = word_tokenize(text)
 
     # Stopwords and punctuation removal
-    new_stopwords = stopwords.words("english") + list(string.punctuation)
-    new_stopwords.extend(
-        [
-            "'",
-            "`",
-            "...",
-            ".",
-            '"',
-            "``",
-            "..",
-            "”",
-            "''",
-            "“",
-            "’",
-            ",",
-            "co",
-            "http",
-            "amp",
-            "u",
-            "n",
-            "s",
-            "n't",
-            "t",
-            " ",
-            "\n",
-        ]
-    )
-    filtered_tokens = [token for token in tokens if token not in new_stopwords]
+    filtered_tokens = [token for token in tokens if token not in ALL_STOPWORDS]
 
     # Lemmatize
-    lemmatizer = WordNetLemmatizer()
     lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
-
+    # print(lemmatized_tokens)
     return " ".join(lemmatized_tokens)
 
 
@@ -73,12 +56,8 @@ def get_sentiment(text):
     return 1 if scores["pos"] > 0 else 0
 
 
-# Load dataset
-def load_dataset():
-    return pd.read_csv("./data/war-day/df.csv")
-
 if __name__ == "__main__":
-    df = load_dataset()
+    df = combine()
 
     # Create new DataFrame
     new_df = pd.DataFrame()
@@ -99,5 +78,5 @@ if __name__ == "__main__":
     new_df = new_df.dropna(subset=["content_sentiment"])
 
     # Save to CSV
-    new_df.to_csv("./data/war-day/preprocessed.csv", index=False)
+    new_df.to_csv("./data/combined/preprocessed.csv", index=False)
     print("Preprocessing done!")

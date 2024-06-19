@@ -5,7 +5,7 @@ import json
 from dotenv import load_dotenv
 import os
 from rich import print
-from scrap.my_tweet import MyTweet
+from src.scrap.my_tweet import MyTweet
 
 
 def load_settings() -> dict[str]:
@@ -14,7 +14,7 @@ def load_settings() -> dict[str]:
 
 
 async def load_tweets_by_tag(api: API, tag: str, limit: int):
-    return await gather(api.search(f"{tag} lang:en since:2023-10-07", limit=limit))
+    return await gather(api.search(f"{tag} lang:en until:2023-10-07", limit=limit))
 
 
 def save_to_dataset(results: list[dict[str, any]], file_name: str):

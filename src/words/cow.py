@@ -1,21 +1,22 @@
 import pandas as pd
-from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
+from wordcloud import WordCloud, ImageColorGenerator
 from rich import print
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-from typing import Iterable
+from src.words.stopwords import ALL_STOPWORDS
 
 
+# Create word cloud
 def create_wordcloud(
-    stopwords: Iterable,
-    path: str,
-    words: list[str],
-    figsize: tuple[int, int],
-    max_words: int,
-    title: str,
-    size: tuple[float, float],
-    fontsize: int = 50,
+    stopwords,
+    path,
+    words,
+    figsize,
+    max_words,
+    title,
+    size,
+    fontsize=50,
     colormap=None,
     background_color="black",
     mask=None,
@@ -32,147 +33,24 @@ def create_wordcloud(
         colormap=colormap,
         mode=mode,
         color_func=color_func,
+        max_words=max_words,
     ).generate(" ".join(words))
+
     fig = plt.figure(figsize=figsize)
-    fig.suptitle(
-        f"{title} ({max_words} words)",
-        fontsize=fontsize,
-    )
+    fig.suptitle(f"{title} ({max_words} words)", fontsize=fontsize)
     plt.tight_layout(pad=0)
+
     if color_func is not None:
-        plt.imshow(
-            wordcloud.recolor(color_func=image_colors),
-            interpolation="bilinear",
-        )
+        plt.imshow(wordcloud.recolor(color_func=image_colors), interpolation="bilinear")
     else:
         plt.imshow(wordcloud, interpolation="bilinear")
 
     plt.axis("off")
     plt.savefig(path)
+    plt.close(fig)
 
 
-def main_cow():
-    processed_tokens = pd.read_csv("./data/war-day/preprocessed.csv")[
-        "processed_content"
-    ]
-    all_rows = processed_tokens.tolist()
-    for line in all_rows:
-        if isinstance(line, float):
-            print(line)
-    all_rows_splitted = [line.split(" ") for line in all_rows]
-    word_list = [word for line in all_rows_splitted for word in line]
-    # Generate a word cloud image
-    # stop_words = [str(a) for ]
-    max_words = 200
-    stopwords = [*STOPWORDS, "u", "n", "s", "n't", "co", "t", "amp"]
-    path = "./data/war-day/cow-main.png"
-    figsize = (25.60, 14.40)
-    width = 2560
-    height = 1440
-    title = "All tweets wordcloud"
-    create_wordcloud(
-        stopwords, path, word_list, figsize, max_words, title, (height, width)
-    )
-
-
-def israel_cow():
-    # Load the CSV file
-    df = pd.read_csv("./data/war-day/preprocessed.csv")
-    # Filter rows where hashtags contain "israel"
-    israel_rows = df[df["hash_tags"].str.contains("israel", case=False, na=False)]
-    # Extract processed tokens from the filtered rows
-    processed_tokens = israel_rows["processed_content"]
-    # Convert processed tokens to a list of words
-    all_rows = processed_tokens.tolist()
-    all_rows_splitted = [line.split(" ") for line in all_rows]
-    word_list = [word for line in all_rows_splitted for word in line]
-
-    # Generate a word cloud image
-    stopwords = set(STOPWORDS)
-    custom_stopwords = set(["u", "n", "s", "n't", "co", "t", "amp"])
-    all_stopwords = stopwords.union(custom_stopwords)
-
-    max_words = 500
-    mask = create_mask("./img/israel.jpg")
-
-    max_words = max_words
-    stopwords = all_stopwords
-    mode = "RGBA"
-    background_color = "white"
-    colormap = "Paired"
-    size = (2560, 1862)
-    title = "Wordcloud - tweets including #israel tag"
-    # Display the word cloud image
-    path = "./data/war-day/cow-israel.png"
-    figsize = (25.60, 18.62)
-    image_colors = ImageColorGenerator(mask)
-
-    create_wordcloud(
-        all_stopwords,
-        path,
-        word_list,
-        figsize,
-        max_words,
-        title,
-        size,
-        image_colors=image_colors,
-        mask=mask,
-        color_func=image_colors,
-        mode=mode,
-        background_color=background_color,
-        colormap=colormap,
-    )
-
-
-def palestine_cow():
-    # Load the CSV file
-    df = pd.read_csv("./data/war-day/preprocessed.csv")
-    # Filter rows where hashtags contain "israel"
-    palestine = df[df["hash_tags"].str.contains("palestine", case=False, na=False)]
-    # Extract processed tokens from the filtered rows
-    processed_tokens = palestine["processed_content"]
-    # Convert processed tokens to a list of words
-    all_rows = processed_tokens.tolist()
-    all_rows_splitted = [line.split(" ") for line in all_rows]
-    word_list = [word for line in all_rows_splitted for word in line]
-
-    # Generate a word cloud image
-    stopwords = set(STOPWORDS)
-    custom_stopwords = set(["u", "n", "s", "n't", "co", "t", "amp"])
-    all_stopwords = stopwords.union(custom_stopwords)
-
-    max_words = 500
-    mask = create_mask("./img/palestine.png")
-
-    max_words = max_words
-    stopwords = all_stopwords
-    mode = "RGBA"
-    background_color = "white"
-    colormap = "Paired"
-    size = (2560, 1280)
-    title = "Wordcloud - tweets including #palestine tag"
-    # Display the word cloud image
-    path = "./data/war-day/cow-palestine.png"
-    figsize = (25.60, 12.80)
-    image_colors = ImageColorGenerator(mask)
-
-    create_wordcloud(
-        all_stopwords,
-        path,
-        word_list,
-        figsize,
-        max_words,
-        title,
-        size,
-        image_colors=image_colors,
-        mask=mask,
-        color_func=image_colors,
-        mode=mode,
-        background_color=background_color,
-        colormap=colormap,
-    )
-
-
+# Create mask for word cloud
 def create_mask(path: str):
     mask = Image.open(path)
 
@@ -186,6 +64,76 @@ def create_mask(path: str):
 
 
 if __name__ == "__main__":
-    main_cow()
-    israel_cow()
-    palestine_cow()
+    # Load preprocessed data
+    new_df = pd.read_csv("./data/combined/preprocessed.csv")
+
+    # Generate word clouds
+    processed_tokens = new_df["processed_content"]
+    all_rows = processed_tokens.tolist()
+    all_rows_splitted = [line.split(" ") for line in all_rows]
+    word_list = [word for line in all_rows_splitted for word in line]
+
+    # General word cloud
+    create_wordcloud(
+        ALL_STOPWORDS,
+        "./data/combined/cow-main.png",
+        word_list,
+        (25.60, 14.40),
+        100,
+        "All tweets wordcloud",
+        (1440, 2560),
+    )
+
+    # Word cloud for tweets containing #israel
+    israel_rows = new_df[
+        new_df["hash_tags"].str.contains("israel", case=False, na=False)
+    ]
+    israel_word_list = [
+        word
+        for line in israel_rows["processed_content"].tolist()
+        for word in line.split(" ")
+    ]
+    israel_mask = create_mask("./img/israel.jpg")
+    image_colors = ImageColorGenerator(israel_mask)
+    create_wordcloud(
+        # stopwords
+        ALL_STOPWORDS,
+        "./data/combined/cow-israel.png",
+        israel_word_list,
+        (25.60, 18.62),
+        300,
+        "Wordcloud - tweets including #israel tag",
+        (1862, 2560),
+        colormap="Paired",
+        mask=israel_mask,
+        color_func=image_colors,
+        image_colors=image_colors,
+        background_color="white",
+    )
+
+    # Word cloud for tweets containing #palestine
+    palestine_rows = new_df[
+        new_df["hash_tags"].str.contains("palestine", case=False, na=False)
+    ]
+    palestine_word_list = [
+        word
+        for line in palestine_rows["processed_content"].tolist()
+        for word in line.split(" ")
+    ]
+    palestine_mask = create_mask("./img/palestine.png")
+    image_colors = ImageColorGenerator(palestine_mask)
+    create_wordcloud(
+        # stopwords
+        ALL_STOPWORDS,
+        "./data/combined/cow-palestine.png",
+        palestine_word_list,
+        (25.60, 12.80),
+        200,
+        "Wordcloud - tweets including #palestine tag",
+        (1280, 2560),
+        colormap="Paired",
+        mask=palestine_mask,
+        color_func=image_colors,
+        image_colors=image_colors,
+        background_color="white",
+    )
