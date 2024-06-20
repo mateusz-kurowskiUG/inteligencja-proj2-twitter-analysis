@@ -9,19 +9,25 @@ def adjust_data(df: pd.DataFrame) -> pd.DataFrame:
     df["date"] = pd.to_datetime(df["date"]).dt.strftime(
         "%Y-%m"
     )  # Convert to datetime type
-    df = df.drop(["processed_content"], axis=1)
     df = df.drop("hash_tags", axis=1)
     df = df.sort_values(by="date")
     return df
 
 
 def plot_sentiment(df: pd.DataFrame, title_part: str, file_name: str):
-    df_grouped = df.groupby("date").mean()
-    print(df_grouped)
+    numeric_cols = df.select_dtypes(include=np.number).columns
+    df_grouped = df.groupby("date")[numeric_cols].mean()
     dates = df_grouped.index.astype(str)
     pos = df_grouped["pos_sentiment"]
     neu = df_grouped["neu_sentiment"]
     neg = df_grouped["neg_sentiment"]
+    # Determine the overall date range
+    min_date = pd.to_datetime(df["date"]).min().strftime("%Y-%m")
+    max_date = pd.to_datetime(df["date"]).max().strftime("%Y-%m")
+    xlim = (min_date, max_date)  # Limit to year and month for x-axis
+    print(f"Plotting sentiment for {title_part}")
+    # print(df_grouped)  # Print the first few rows of the grouped DataFrame
+    print(f"xlim: {xlim}")  # Print xlim to check its values
 
     plt.figure(figsize=(15, 6))
     plt.plot(dates, pos, label="Positive", color="green")
@@ -31,7 +37,16 @@ def plot_sentiment(df: pd.DataFrame, title_part: str, file_name: str):
     plt.title(f"NLTK Vader Sentiment Over Time ({title_part})")
     plt.xlabel("Date")
     plt.ylabel("Sentiment Scores")
+
+    # Set x-ticks to skip some labels
     plt.xticks(dates[::2], rotation=45)
+
+    plt.axvline(
+        x="2020-11",
+        color="red",
+        linestyle="-",
+        label="Israel carried out several \n airstrikes against targets in Gaza Strip ",
+    )
     plt.axvline(
         x="2021-05", color="black", linestyle="--", label="May conflict in Gaza"
     )
@@ -42,18 +57,36 @@ def plot_sentiment(df: pd.DataFrame, title_part: str, file_name: str):
         x="2023-10",
         color="blue",
         linestyle="-",
-        label="October 7 Hamas massacre\n (start of the war)",
+        label="October 7 Hamas massacre\n (the start of the war)",
+    )
+    plt.axvline(
+        x="2023-11",
+        color="blue",
+        linestyle="--",
+        label="Israeli forces entered the Gaza Strip",
     )
     plt.axvline(
         x="2024-02",
-        color="blue",
-        linestyle="--",
+        color="green",
+        linestyle="-",
         label="Israel opens fire to UN convoy",
     )
-    plt.legend(loc="center right", bbox_to_anchor=(1.25, 0.5))
+    plt.axvline(
+        x="2024-05",
+        color="green",
+        linestyle="--",
+        label="Rafah offensive\nICJ ruled the arrest of Israel\nPM Netanyahu and Hamas leaders",
+    )
+
+    # Set consistent x-axis limits
+    if xlim:
+        plt.xlim(xlim)
+
+    plt.legend(loc="center right", bbox_to_anchor=(1.30, 0.5))
     plt.tight_layout()
 
     plt.savefig(f"./data/combined/{file_name}")
+    plt.close()
 
 
 if __name__ == "__main__":
@@ -81,6 +114,9 @@ if __name__ == "__main__":
         )
     ]
     palestine_df = adjust_data(palestine_only)
+    print("Filtered Palestine DataFrame head:")
+    # print(palestine_df.head())  # Print the first few rows of the Palestine DataFrame
+
     plot_sentiment(
         palestine_df, "Palestine-related tweets", "nltk-sentiment-palestine.png"
     )

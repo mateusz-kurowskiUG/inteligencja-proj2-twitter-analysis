@@ -5,6 +5,7 @@ from bertopic import BERTopic
 from sklearn.datasets import fetch_20newsgroups
 import PIL.Image as Img
 import io
+from spacy.tokens import DocBin
 
 
 def read_bag_of_words() -> pd.DataFrame:
@@ -54,8 +55,10 @@ def create_tm():
 def read_tm():
     # Deserialize later, e.g. in a new process
     nlp = spacy.blank("en")
-    doc_bin = DocBin().from_bytes(bytes_data)
-    docs = list(doc_bin.get_docs(nlp.vocab))
+    topic_model = BERTopic(language="multilingual")
+
+    nlp=nlp.from_disk("./data/combined/tm.model")
+    topic_model
     # https://spacy.io/usage/saving-loading
 
 
