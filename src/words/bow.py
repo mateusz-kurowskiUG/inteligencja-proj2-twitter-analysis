@@ -61,4 +61,7 @@ if __name__ == "__main__":
             plt.savefig("./data/combined/most-common-words.png")
             # Print the resulting DataFrame
             print("[bold green]CountVectorizer result:[/bold green]")
-            df_count.to_csv("./data/combined/bow.csv")
+            # df_count.to_csv("./data/combined/bow.csv")
+
+            bow = pd.DataFrame(summed_with_labels)
+            bow.to_csv("./data/combined/bow.csv")
