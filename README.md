@@ -1,6 +1,9 @@
 Opracowanie.latex:
 https://www.overleaf.com/read/kgmqkchrbzpr#34dc65
+lub plik Projekt_inteligencja_2.pdf
 
+### Opis:
+Projekt polegał na analizie sentymentu oraz tematyki wpisów z portalu twitter / x.com nt. wojny Izraela z Palestyną.
 
 ### Instalacja zależności
 Wszelkie zależności znajdują się w pliku `pyproject.toml`
